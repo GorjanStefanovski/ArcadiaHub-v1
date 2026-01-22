@@ -10,6 +10,9 @@ public class MatchParticipantId implements Serializable {
     private Long matchId;
     private Long classId;
 
+    public MatchParticipantId(){
+    }
+
     public MatchParticipantId(Long pId,Long mId,Long cId){
         this.playerId=pId;
         this.matchId=mId;

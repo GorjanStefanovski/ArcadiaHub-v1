@@ -2,15 +2,135 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>WELCOME_USER</title>
+    <title>Arcadia Hub - Command Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0f2b 50%, #2b0f3a 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 3px solid #444;
+            padding: 50px;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        .dashboard-container:before {
+            content: "";
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 2px solid #ff6b35;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        h1 {
+            color: #ff6b35;
+            text-shadow: 4px 4px 0px #5a230e;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 0.8rem;
+            color: #00ff88;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-game {
+            text-decoration: none;
+            padding: 20px;
+            font-size: 0.7rem;
+            border: 3px solid #444;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Примарно копче за борба */
+        .btn-fight {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            border-color: #ff6b35;
+            font-size: 1.2rem;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-fight:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+            color: #000;
+        }
+
+        /* Секундарни копчиња */
+        .btn-secondary-game:hover {
+            border-color: #00ff88;
+            color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            font-size: 0.6rem;
+            margin-bottom: 30px;
+            padding: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn-fight {
+                grid-column: span 1;
+            }
+        }
+    </style>
 </head>
 <body>
-<!--<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>-->
-<h1 th:text="'Hello, ' + ${username} + '!'"></h1>
-<p>You are now ready to fight!</p>
-<a th:href="@{/home/statistics}" class="btn btn-primary">Go to Profile</a>
-<a th:href="@{/fight/lobby}" class="btn btn-danger">Find a Match</a>
-<a th:href="@{/home/leaderboardFilter}" class="btn btn-danger">View leaderboards!</a>
-<a th:href="@{/friends/addFriend}" class="btn btn-danger">View and add friends!</a>
+
+<div class="dashboard-container">
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <h1 th:text="'HELLO, ' + ${username} + '!'"></h1>
+    <p>> SYSTEM READY. ARENA STANDBY.</p>
+
+    <div class="menu-grid">
+        <a th:href="@{/fight/lobby}" class="btn-game btn-fight">ENTER THE ARENA</a>
+
+        <a th:href="@{/home/statistics}" class="btn-game btn-secondary-game">MY PROFILE</a>
+        <a th:href="@{/home/leaderboardFilter}" class="btn-game btn-secondary-game">RANKINGS</a>
+        <a th:href="@{/friends/viewFriends}" class="btn-game btn-secondary-game">FRIENDS LIST</a>
+    </div>
+</div>
 </body>
 </html>

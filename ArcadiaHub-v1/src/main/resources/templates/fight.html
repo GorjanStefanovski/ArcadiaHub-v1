@@ -77,88 +77,17 @@
 
 <canvas id="canvas" width="1024" height="576"></canvas>
 
-<!-- Your scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+
 <script th:src="@{/js/utils.js}"></script>
 <script th:src="@{/js/classes.js}"></script>
-<!--<script th:src="@{/js/index.js}"></script>-->
 
-<!---
 <script th:inline="javascript">
   const matchId = /*[[${matchId}]]*/ 'test';
   const playerNumber = /*[[${playerNumber}]]*/ 0;
-  console.log('Fight page loaded for match:', matchId);
-
-  // Your game will start from index.js
-  // Later: WebSocket connection here
-  console.log('Match:', matchId, 'I am player:',playerNumber);
-   stompClient = new StompJs.Client({
-    webSocketFactory: () => new SockJS('/ws'),
-    debug: str => console.log(str),
-    onConnect: () => {
-      console.log('Connected');
-
-      stompClient.subscribe('/topic/match/' + matchId+'/move', message => {
-        console.log('Received:', message.body);
-        const data=JSON.parse(message.body);
-        if(data.player===playerNumber){
-          return ;
-        }
-        handleOpponentMovement(data);
-      });
-      /*
-        stompClient.publish({
-          destination: '/app/match/' + matchId + '/move',
-          body: JSON.stringify({
-            playerId:playerNumber,
-            action: "ACTION",
-            state:state
-          })
-        });
-
-       */
-    }
-  });
-
-  stompClient.activate();
-</script>
-<script th:src="@{static/js/index.js}"></script>
---->
-<script th:inline="javascript">
-  const matchId = /*[[${matchId}]]*/ 'test';
-  const playerNumber = /*[[${playerNumber}]]*/ 0;
-  console.log('Fight page loaded for match:', matchId, 'player:', playerNumber);
-  console.log('GAME START', performance.now());
-
-
-  // Initialize WebSocket
-  /*
-  stompClient = new StompJs.Client({
-    webSocketFactory: () => new SockJS('/ws'),
-    debug: str => console.log(str),
-    onConnect: () => {
-      console.log('Connected');
-
-      stompClient.subscribe('/topic/match/' + matchId + '/move', message => {
-        const data = JSON.parse(message.body);
-        if (data.player === playerNumber) return;
-        handleOpponentMovement(data);
-      });
-
-      // Set fighters only once websocket is ready
-      localFighter = playerNumber === 1 ? player : enemy;
-      opponentFighter = playerNumber === 1 ? enemy : player;
-
-      // Start the animation loop
-      animate();
-    }
-  });
-   */
-
-  //stompClient.activate();
+  console.log('Конфигурирано за Match:', matchId, 'Player:', playerNumber);
 </script>
 <script th:src="@{/js/index.js}"></script>
 </body>

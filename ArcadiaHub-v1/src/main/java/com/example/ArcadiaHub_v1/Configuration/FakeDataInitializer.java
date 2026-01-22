@@ -1,5 +1,7 @@
 package com.example.ArcadiaHub_v1.Configuration;
 
+import com.example.ArcadiaHub_v1.Achievment.Achievement;
+import com.example.ArcadiaHub_v1.Achievment.AchievementRepository;
 import com.example.ArcadiaHub_v1.FightingClass.FightingClassRepository;
 import com.example.ArcadiaHub_v1.FightingClass.HeavyClass;
 import com.example.ArcadiaHub_v1.FightingClass.LightClass;
@@ -13,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class FakeDataInitializer {
 
     @Bean
-    CommandLineRunner fakeUsers(PlayerRepository rep, FightingClassRepository fcRep){
+    CommandLineRunner fakeUsers(PlayerRepository rep, FightingClassRepository fcRep, AchievementRepository achievementRepository){
         return args->{
             rep.save(new Player("defaultUsername567","mail1@gmail.com","1234ab",58,184,23,23000,7L));
             rep.save(new Player("defaultUsername789","mail2@gmail.com","1234abc",72,257,25,25000,15L));
@@ -26,7 +28,10 @@ public class FakeDataInitializer {
             rep.save(new Player("defaultUsername8910","mail9@gmail.com","1234qrs",300,700,150,150000,28L));
             rep.save(new Player("defaultUsername101112","mail10@gmail.com","1234ymz",64,102,34,34000,8L));
             fcRep.save(new LightClass(20,100,10));
-            fcRep.save(new HeavyClass(40,100,10));
+            fcRep.save(new HeavyClass(30,100,5));
+            achievementRepository.save(new Achievement("Beginner Fighter", "Reached Level 1", 1));
+            achievementRepository.save(new Achievement("Intermediate Fighter", "Reached Level 5", 5));
+            achievementRepository.save(new Achievement("Expert Fighter", "Reached Level 10", 10));
         };
     }
 }

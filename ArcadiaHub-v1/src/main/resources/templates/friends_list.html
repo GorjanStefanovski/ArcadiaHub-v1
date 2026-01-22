@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Arcadia Hub - Friends & Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0f2b 50%, #2b0f3a 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        .cyber-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 2px solid #444;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-neon {
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            border-left: 5px solid #ff6b35;
+            padding-left: 15px;
+        }
+
+        .search-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #444;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 15px;
+            border-radius: 0;
+        }
+        .search-input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            outline: none;
+        }
+
+        .list-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .list-item:hover {
+            border-color: #ff6b35;
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .username-text { font-size: 0.75rem; color: #00ff88; }
+        .status-tag { font-size: 0.5rem; color: #aaa; text-transform: uppercase; }
+
+        .btn-action {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 10px 15px;
+            border-radius: 0;
+            border: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .btn-accept { background: #00ff88; color: #000; }
+        .btn-reject { background: #ff4757; color: #fff; }
+        .btn-search { background: #ff6b35; color: #fff; }
+
+        .empty-msg { font-size: 0.6rem; color: #666; font-style: italic; }
+
+        /* Alert Styling */
+        .cyber-alert {
+            font-size: 0.6rem;
+            border-radius: 0;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-width: 1px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="cyber-card">
+                <h3 class="header-neon">ADD NEW FRIEND</h3>
+
+                <div th:if="${error}" class="cyber-alert alert-danger" style="background: rgba(255, 71, 87, 0.1); border-color: #ff4757; color: #ff4757;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}">Error</span>
+                </div>
+                <div th:if="${success}" class="cyber-alert alert-success" style="background: rgba(0, 255, 136, 0.1); border-color: #00ff88; color: #00ff88;">
+                    <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${success}">Success</span>
+                </div>
+
+                <form th:action="@{/friends/sendRequest}" method="post" class="d-flex">
+                    <input type="text" name="receiverUsername" class="form-control search-input me-2" placeholder="ENTER USERNAME..." required>
+                    <button type="submit" class="btn-action btn-search">SEND</button>
+                </form>
+            </div>
+
+            <div class="cyber-card">
+                <h3 class="header-neon">INCOMING REQUESTS</h3>
+                <div th:if="${#lists.isEmpty(receivedRequests)}" class="empty-msg">No pending transmissions...</div>
+                <div th:each="req : ${receivedRequests}" class="list-item">
+                    <span class="username-text" th:text="${req.sender.username}">PLAYER_X</span>
+                    <div>
+                        <form th:action="@{/friends/process}" method="post" class="d-inline">
+                            <input type="hidden" name="requestId" th:value="${req.id}">
+                            <input type="hidden" name="action" value="ACCEPT">
+                            <button type="submit" class="btn-action btn-accept">ACCEPT</button>
+                        </form>
+                        <form th:action="@{/friends/process}" method="post" class="d-inline">
+                            <input type="hidden" name="requestId" th:value="${req.id}">
+                            <input type="hidden" name="action" value="REJECT">
+                            <button type="submit" class="btn-action btn-reject">REJECT</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-card">
+                <h3 class="header-neon">SENT REQUESTS</h3>
+                <div th:if="${#lists.isEmpty(sentRequests)}" class="empty-msg">None active.</div>
+                <div th:each="req : ${sentRequests}" class="list-item">
+                    <span class="username-text" th:text="${req.receiver.username}">PLAYER_Y</span>
+                    <span class="status-tag">SIGNAL SENT...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="cyber-card h-100">
+                <h3 class="header-neon">FRIENDS_LIST.DLL</h3>
+                <div th:if="${#lists.isEmpty(friends)}" class="empty-msg">Your alliance is currently empty.</div>
+                <div th:each="friend : ${friends}" class="list-item">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-fill me-3" style="color: #ff6b35; font-size: 1.5rem;"></i>
+                        <div>
+                            <div class="username-text" th:text="${friend.username}">FRIEND_NAME</div>
+                            <div class="status-tag">LEVEL: <span th:text="${friend.accountLevel}">1</span></div>
+                        </div>
+                    </div>
+                    <span class="status-tag" style="color: #00ff88;">ONLINE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/home/welcomeUser}" class="btn-action btn-search" style="background: transparent; border: 1px solid #666; text-decoration: none;">BACK TO HUB</a>
+    </div>
+</div>
+</body>
+</html>

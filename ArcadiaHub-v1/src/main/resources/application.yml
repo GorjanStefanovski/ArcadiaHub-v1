@@ -4,8 +4,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 863810700558-oga7cft7qase6094fr348bh801q9apuf.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
   datasource:
     url: jdbc:postgresql://localhost:5432/ArcadiaHubV1
     username: postgres

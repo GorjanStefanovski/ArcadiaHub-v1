@@ -1,5 +1,7 @@
 package com.example.ArcadiaHub_v1.Player;
 
+import com.example.ArcadiaHub_v1.Achievment.Achievement;
+import com.example.ArcadiaHub_v1.Friends.FriendRequest;
 import com.example.ArcadiaHub_v1.MatchParticipant.MatchParticipant;
 import com.example.ArcadiaHub_v1.PlayerClassProgression.PlayerClassProgression;
 import jakarta.persistence.*;
@@ -34,19 +36,34 @@ public class Player {
     private Integer accountXP;
     private Long hoursPlayed;
     private double winRate=0.0;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany
     @JoinTable(
-            name ="friendships",
-            joinColumns = @JoinColumn(name="player_id"),
-            inverseJoinColumns = @JoinColumn(name="friend_id")
+            name = "player_friends",
+            joinColumns = @JoinColumn(name = "player_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
-    private List<Player> friends;
+    private List<Player> friends = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<FriendRequest> sentRequests = new ArrayList<>();
+
+    // Барања кои овој играч ги примил
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<FriendRequest> receivedRequests = new ArrayList<>();
 
     @OneToMany(mappedBy = "p", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerClassProgression> progressions;
 
     @OneToMany(mappedBy = "playerId",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<MatchParticipant> matchHistory;
+
+    @ManyToMany
+    @JoinTable(
+            name = "player_achievements",
+            joinColumns = @JoinColumn(name = "player_id"),
+            inverseJoinColumns = @JoinColumn(name = "achievement_id")
+    )
+    private List<Achievement> achievements = new ArrayList<>();
 
     public Player(){
     }
@@ -186,5 +203,29 @@ public class Player {
 
     public List<MatchParticipant> getMatchHistory() {
         return matchHistory;
+    }
+
+    public void setSentRequests(List<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public void setReceivedRequests(List<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
+    }
+
+    public List<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public List<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setAchievements(List<Achievement> achievements) {
+        this.achievements = achievements;
+    }
+
+    public List<Achievement> getAchievements() {
+        return achievements;
     }
 }

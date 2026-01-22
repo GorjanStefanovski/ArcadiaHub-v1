@@ -3,94 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Leaderboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Arcadia Hub - Hall of Fame</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0f2b 50%, #2b0f3a 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            padding: 50px 0;
         }
-        .leaderboard-container {
-            margin-top: 50px;
+
+        .leaderboard-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 3px solid #444;
+            border-radius: 0;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
         }
-        .table thead {
-            background-color: #343a40;
-            color: white;
+
+        .header-neon {
+            color: #ff6b35;
+            text-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+            font-size: 1.5rem;
+            margin-bottom: 40px;
         }
+
+        .table {
+            color: #fff;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            background: transparent;
+        }
+
+        .table thead th {
+            border: none;
+            color: #00ff88;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .table tbody tr {
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.01);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .table td {
+            border: none;
+            padding: 20px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
         .rank-badge {
-            font-size: 1.2rem;
-            width: 40px;
+            background: #444;
+            color: #fff;
+            padding: 10px;
+            min-width: 40px;
+            display: inline-block;
+            border: 2px solid #666;
         }
-        .win-rate-high {
-            color: #198754;
-            font-weight: bold;
+
+        /* Top 3 Rankings */
+        tr:nth-child(1) .rank-badge { background: #ffd700; color: #000; border-color: #fff; } /* Gold */
+        tr:nth-child(2) .rank-badge { background: #c0c0c0; color: #000; border-color: #fff; } /* Silver */
+        tr:nth-child(3) .rank-badge { background: #cd7f32; color: #000; border-color: #fff; } /* Bronze */
+
+        .win-rate-high { color: #00ff88; text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+        .win-rate-medium { color: #f39c12; }
+        .win-rate-low { color: #ff4757; }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 15px 30px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
-        .win-rate-medium {
-            color: #ffc107;
-            font-weight: bold;
+
+        .btn-back:hover {
+            background: #ff6b35;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
         }
-        .win-rate-low {
-            color: #dc3545;
-            font-weight: bold;
+
+        .player-name {
+            color: #fff;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-<div class="container leaderboard-container">
+
+<div class="container">
     <div class="row">
-        <div class="col-12">
-            <h1 class="text-center mb-5 display-5 fw-bold text-dark">
-                <i class="bi bi-trophy-fill text-warning"></i> Leaderboard
+        <div class="col-12 text-center">
+            <h1 class="header-neon">
+                <i class="bi bi-trophy-fill"></i> HALL OF FAME
             </h1>
 
-            <div class="card shadow">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                            <tr>
-                                <th scope="col" class="text-center">#</th>
-                                <th scope="col">Player</th>
-                                <th scope="col" class="text-center">Matches Played</th>
-                                <th scope="col" class="text-center">Won</th>
-                                <th scope="col" class="text-center">Lost</th>
-                                <th scope="col" class="text-center">Win Rate</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="player, iter : ${players}">
-                                <td class="text-center">
-                                            <span class="badge rounded-pill bg-primary rank-badge"
-                                                  th:text="${iter.index + 1}">1</span>
-                                </td>
-                                <td>
-                                    <strong th:text="${player.playerName()}">Player Name</strong>
-                                </td>
-                                <td class="text-center" th:text="${player.matchesPlayed()}">0</td>
-                                <td class="text-center text-success fw-bold" th:text="${player.matchesWon()}">0</td>
-                                <td class="text-center text-danger fw-bold" th:text="${player.matchesLost()}">0</td>
-                                <td class="text-center"
-                                    th:text="${player.winRate()} + '%'"
-                                    th:classappend="|${player.winRate() >= 60 ? 'win-rate-high' :
-                                    (player.winRate() >= 40 ? 'win-rate-medium' : 'win-rate-low')}|">
-                                    0%
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="leaderboard-card">
+                <div class="table-responsive p-3">
+                    <table class="table align-middle">
+                        <thead>
+                        <tr>
+                            <th class="text-center">RANK</th>
+                            <th>FIGHTER</th>
+                            <th class="text-center">MATCHES</th>
+                            <th class="text-center">WINS</th>
+                            <th class="text-center">LOSSES</th>
+                            <th class="text-center">WIN RATE</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="player, iter : ${players}">
+                            <td class="text-center">
+                                <span class="rank-badge" th:text="${iter.index + 1}">1</span>
+                            </td>
+                            <td>
+                                <span class="player-name" th:text="${player.playerName()}">PLAYER</span>
+                            </td>
+                            <td class="text-center" th:text="${player.matchesPlayed()}">0</td>
+                            <td class="text-center fw-bold" style="color: #00ff88;" th:text="${player.matchesWon()}">0</td>
+                            <td class="text-center fw-bold" style="color: #ff4757;" th:text="${player.matchesLost()}">0</td>
+                            <td class="text-center fw-bold"
+                                th:text="${player.winRate()} + '%'"
+                                th:classappend="|${player.winRate() >= 60 ? 'win-rate-high' :
+                                (player.winRate() >= 40 ? 'win-rate-medium' : 'win-rate-low')}|">
+                                0%
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="text-center mt-4">
-                <a th:href="@{/home}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Home
+            <div class="mt-5">
+                <a th:href="@{/home/welcomeUser}" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> RETURN TO HUB
                 </a>
             </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

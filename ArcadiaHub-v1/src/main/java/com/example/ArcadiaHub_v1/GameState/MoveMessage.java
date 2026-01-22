@@ -5,6 +5,8 @@ public class MoveMessage {
     private String key;   // "a", "d", "ArrowLeft", etc.
     private String state; // "DOWN" or "UP"
 
+    public MoveMessage(){
+    }
     // getters/setters
     public int getPlayerId() { return playerId; }
     public void setPlayerId(int playerId) { this.playerId = playerId; }

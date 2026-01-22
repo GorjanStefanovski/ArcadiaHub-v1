@@ -6,11 +6,16 @@ public class PlayerState {
     private double vx = 0;
     private double vy = 0;
     private int health = 100;
-
-    // You can add more if needed, like current sprite or attack cooldown
+    private boolean isAttacking = false;
+    private double attackWidth = 160;
+    private double attackHeight = 50;
+    private double attackOffsetX = 100;
     private String currentSprite = "idle";
+    private double damage;
+    private double speed;
+    private Long classId;
+    private Long playerId;
 
-    // getters/setters
     public double getX() { return x; }
     public void setX(double x) { this.x = x; }
     public double getY() { return y; }
@@ -27,5 +32,69 @@ public class PlayerState {
     // Example attack method
     public void attack() {
         // implement attack logic here
+    }
+
+    public boolean isAttacking() {
+        return isAttacking;
+    }
+
+    public double getAttackOffsetX() {
+        return attackOffsetX;
+    }
+
+    public double getAttackHeight() {
+        return attackHeight;
+    }
+
+    public double getAttackWidth() {
+        return attackWidth;
+    }
+
+    public void setAttacking(boolean attacking) {
+        isAttacking = attacking;
+    }
+
+    public void setAttackOffsetX(double attackOffsetX) {
+        this.attackOffsetX = attackOffsetX;
+    }
+
+    public void setAttackHeight(double attackHeight) {
+        this.attackHeight = attackHeight;
+    }
+
+    public void setAttackWidth(double attackWidth) {
+        this.attackWidth = attackWidth;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public Long getPlayerId() {
+        return playerId;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setPlayerId(Long playerId) {
+        this.playerId = playerId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public void setDamage(double damage) {
+        this.damage = damage;
     }
 }

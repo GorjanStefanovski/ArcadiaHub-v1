@@ -50,8 +50,8 @@ public class PlayerClassProgression {
     }
 
     public void addClassXp(int added){
-        this.classXP+=added;
-        //this.classLevel = this.classXP / 1000;
+        this.classXP += added;
+        this.classLevel = this.classXP / 100;
     }
 
     public void setClassXP(int classXP) {

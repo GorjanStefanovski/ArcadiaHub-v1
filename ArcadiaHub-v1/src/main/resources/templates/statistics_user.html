@@ -1,67 +1,219 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Profile</title>
+    <title>Arcadia Hub - Player Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0f2b 50%, #2b0f3a 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .profile-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 2px solid #444;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-header {
+            color: #ff6b35;
+            text-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .avatar-frame {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border: 3px solid #00ff88;
+            padding: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            background: #1a1a1a;
+        }
+
+        .avatar-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .xp-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #333;
+        }
+
+        .progress {
+            height: 25px;
+            background-color: #222;
+            border-radius: 0;
+            border: 1px solid #444;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background-color: #00ff88;
+            box-shadow: 0 0 15px #00ff88;
+            font-size: 0.6rem;
+            line-height: 25px;
+            color: #000;
+        }
+
+        .achievement-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #444;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .header-neon {
+            color: #ff6b35;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .achievement-badge {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid #ff6b35;
+            padding: 10px 15px;
+            font-size: 0.55rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: help;
+        }
+
+        .achievement-badge i {
+            color: #ff6b35;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px #ff6b35;
+        }
+
+        .btn-action {
+            font-family: 'Press Start 2P', cursive;
+            padding: 15px 25px;
+            font-size: 0.7rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid #666;
+            color: #666;
+        }
+
+        .btn-back:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .btn-fight {
+            background: #ff6b35;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-fight:hover {
+            background: #ff8552;
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border: 1px solid #333;
+        }
+
+        .stat-label { font-size: 0.5rem; color: #888; display: block; margin-bottom: 5px; }
+        .stat-value { font-size: 0.8rem; color: #00ff88; }
+    </style>
 </head>
-<body class="bg-dark text-white">
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card bg-secondary text-white">
-                <div class="card-header text-center">
-                    <h2>Player Profile</h2>
-                </div>
-                <div class="card-body text-center">
-                    <h3 th:text="${username}"></h3>
-                 <!--   <p class="text-muted" th:text="${player.email}"></p>-->
-                    <div class="row mt-4">
-                        <div class="col">
-                            <h4 th:text="${matchesPlayed}">0</h4>
-                            <p>Matches Played</p>
-                        </div>
-                        <div class="col">
-                            <h4 th:text="${matchesWon}">0</h4>
-                            <p>Wins</p>
-                        </div>
-                        <div class="col">
-                            <h4 th:text="${matchesLost}">0</h4>
-                            <p>Losses</p>
-                        </div>
-                        <div class="col">
-                            <h4 th:text="${accountLevel}">0</h4>
-                            <p>Account Level</p>
-                        </div>
-                        <div class="col">
-                            <h4 th:text="${hoursPlayed}">0</h4>
-                            <p>Hours played</p>
-                        </div>
-                        <div class="col">
-                            <h4 th:text="${winRate + '%'}">0%</h4>
-                            <p>Win Rate</p>
-                        </div>
-                    </div>
+<body>
 
-                    <div class="mt-4">
-                        <h5>Account XP: <span th:text="${accountXP}">0</span></h5>
-                        <div class="progress">
-                            <div class="progress-bar bg-success"
-                                 role="progressbar"
-                                 th:style="'width: ' + (${accountXP} % 1000 / 10) + '%'"
-                                 th:text="${accountXP % 1000 + '/1000'}">
-                            </div>
-                        </div>
-                        <p class="mt-2">Level <strong th:text="${accountXP / 1000}"></strong></p>
-                    </div>
+<div class="profile-container">
+    <h1 class="profile-header">PLAYER_PROFILE.EXE</h1>
 
-                    <div class="mt-4">
-                        <a th:href="@{/home/welcomeUser}" class="btn btn-primary me-2">Back to Home</a>
-                        <a th:href="@{/fight}" class="btn btn-danger">Find Match</a>
-                    </div>
-                </div>
+    <div class="avatar-frame">
+        <img th:src="'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + ${player.username}" alt="Avatar">
+    </div>
+
+    <h2 style="font-size: 1.2rem; margin-bottom: 25px;" th:text="${player.username}">USERNAME</h2>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-label">TOTAL WINS</span>
+            <span class="stat-value" th:text="${player.matchesWon}">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">TOTAL LOSSES</span>
+            <span class="stat-value" th:text="${player.matchesLost}">0</span>
+        </div>
+    </div>
+
+    <div class="xp-section">
+        <h5 style="font-size: 0.7rem; margin-bottom: 15px; color: #ff6b35; text-align: left;">
+            ACCOUNT LEVEL: <span th:text="${player.accountLevel}">1</span>
+            <span style="float: right; color: #888;">XP: <span th:text="${player.accountXP}">0</span></span>
+        </h5>
+        <div class="progress">
+            <div class="progress-bar"
+                 role="progressbar"
+                 th:style="'width: ' + (${player.accountXP % 1000} / 10) + '%'"
+                 th:text="${(player.accountXP % 1000) + ' / 1000'}">
             </div>
         </div>
+    </div>
+
+    <div class="achievement-card">
+        <h5 class="header-neon">ACHIEVEMENTS_UNLOCKED.DLL</h5>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <div th:if="${#lists.isEmpty(player.achievements)}" style="font-size: 0.55rem; color: #555; font-style: italic;">
+                NO MEDALS RETRIEVED FROM THE BATTLEFIELD YET.
+            </div>
+
+            <div th:each="ach : ${player.achievements}"
+                 class="achievement-badge"
+                 th:title="${ach.description}">
+                <i class="bi bi-award-fill"></i>
+                <span th:text="${ach.name}">ACHIEVEMENT NAME</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a th:href="@{/home/welcomeUser}" class="btn-action btn-back">RETURN TO HUB</a>
+        <a th:href="@{/fight/lobby}" class="btn-action btn-fight">FIND MATCH</a>
     </div>
 </div>
 </body>

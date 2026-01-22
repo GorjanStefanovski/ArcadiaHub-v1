@@ -66,17 +66,13 @@ public class PlayerController {
     }
 
     @GetMapping("/statistics")
-    public String getStatistics(OAuth2AuthenticationToken token,Model model){
-        String sub=token.getPrincipal().getAttribute("sub");
-        PlayerDto dto=this.service.getPlayerInformation(sub);
-        model.addAttribute("username",dto.username());
-        model.addAttribute("matchesPlayed",dto.matchesPlayed());
-        model.addAttribute("matchesLost",dto.matchesLost());
-        model.addAttribute("matchesWon",dto.matchesWon());
-        model.addAttribute("accountLevel",dto.accountLevel());
-        model.addAttribute("hoursPlayed",dto.hoursPlayed());
-        model.addAttribute("accountXP",dto.accountXP());
-        model.addAttribute("winRate",dto.winRate());
+    public String getStatistics(OAuth2AuthenticationToken token, Model model) {
+        String sub = token.getPrincipal().getAttribute("sub");
+        PlayerDto dto = this.service.getPlayerInformation(sub);
+        model.addAttribute("player", dto);
+        model.addAttribute("accountXP", dto.accountXP());
+        model.addAttribute("accountLevel", dto.accountLevel());
+        model.addAttribute("achievements", dto.achievements());
         return "statistics_user";
     }
 

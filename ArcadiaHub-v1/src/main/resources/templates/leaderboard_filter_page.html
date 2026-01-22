@@ -2,72 +2,153 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Leaderboard</title>
+    <title>Arcadia Hub - Ranking Filters</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0f2b 50%, #2b0f3a 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        .card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+
+        .filter-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 3px solid #444;
+            padding: 40px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
-        .btn-primary {
-            background-color: #ff4444;
+
+        .filter-card:hover {
+            border-color: #ff6b35;
+        }
+
+        .header-neon {
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .form-label {
+            font-size: 0.7rem;
+            color: #00ff88;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .form-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #444;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 12px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .form-select:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #00ff88;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            outline: none;
+        }
+
+        /* Стилизирање на опциите внатре во select */
+        .form-select option {
+            background-color: #1a0f2b;
+            color: #fff;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
             border: none;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            padding: 18px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
         }
-        .btn-primary:hover {
-            background-color: #cc0000;
+
+        .btn-filter:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 107, 53, 0.5);
+            color: #fff;
+        }
+
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 136, 0.2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: moveScan 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes moveScan {
+            0% { top: 0; }
+            100% { top: 100%; }
         }
     </style>
 </head>
-<body class="bg-dark">
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header text-center bg-danger text-white">
-                    <h3>Leaderboard Filter</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post" th:action="@{/home/leaderboardFilter}">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+<body>
 
-                        <div class="mb-3">
-                            <label for="top_bottom" class="form-label">Ranking</label>
-                            <select id="top_bottom" name="top_bottom" class="form-select">
-                                <option value="top">Top Players</option>
-                                <option value="bottom">Bottom Players</option>
-                            </select>
-                        </div>
+<div class="filter-card">
+    <div class="scan-line"></div>
+    <h3 class="header-neon">DATA RETRIEVAL FILTER</h3>
 
-                        <div class="mb-3">
-                            <label for="number" class="form-label">Show</label>
-                            <select id="number" name="number" class="form-select">
-                                <option value="5">Top 5</option>
-                                <option value="10" selected>Top 10</option>
-                            </select>
-                        </div>
+    <form method="post" th:action="@{/home/leaderboardFilter}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-                        <div class="mb-3">
-                            <label for="criterion" class="form-label">Sort By</label>
-                            <select id="criterion" name="criterion" class="form-select">
-                                <option value="wins" selected>Wins</option>
-                                <option value="losses">Losses</option>
-                                <option value="winRate">Win Rate</option>
-                            </select>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Show Leaderboard</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="mb-3">
+            <label for="top_bottom" class="form-label">> RANKING_TYPE</label>
+            <select id="top_bottom" name="top_bottom" class="form-select">
+                <option value="top">TOP PLAYERS</option>
+                <option value="bottom">BOTTOM PLAYERS</option>
+            </select>
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label for="number" class="form-label">> DISPLAY_COUNT</label>
+            <select id="number" name="number" class="form-select">
+                <option value="5">TOP 5</option>
+                <option value="10" selected>TOP 10</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="criterion" class="form-label">> SORT_CRITERION</label>
+            <select id="criterion" name="criterion" class="form-select">
+                <option value="wins" selected>TOTAL WINS</option>
+                <option value="losses">TOTAL LOSSES</option>
+                <option value="winRate">WIN RATE %</option>
+            </select>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-filter">
+                EXECUTE QUERY
+            </button>
+        </div>
+    </form>
 </div>
+
 </body>
 </html>

@@ -24,7 +24,7 @@ public class PlayerService {
     }
 
     public PlayerDto convertPlayer(Player p){
-        return new PlayerDto(p.getUsername(),p.getMatchesPlayed(),p.getMatchesLost(),p.getMatchesWon(),p.getAccountLevel(),p.getHoursPlayed(),p.getAccountXP(),p.getWinRate());
+        return new PlayerDto(p.getUsername(),p.getMatchesPlayed(),p.getMatchesLost(),p.getMatchesWon(),p.getAccountLevel(),p.getHoursPlayed(),p.getAccountXP(),p.getWinRate(),p.getAchievements());
     }
 
     public LeaderboardPlayerDto convertPlayerLeaderboard(Player p){
@@ -74,12 +74,6 @@ public class PlayerService {
 
         return leaderboardMap.getOrDefault(key,
                 repository::findTop10ByOrderByMatchesWonDesc).get().stream().map(this::convertPlayerLeaderboard).collect(Collectors.toList());
-    }
-
-    public List<PlayerDto> getAFriends(OAuth2AuthenticationToken token){
-        String sub=token.getPrincipal().getAttribute("sub");
-        Player p=this.repository.findByGoogleSub(sub);
-        return p.getFriends().stream().map(this::convertPlayer).toList();
     }
 
     public void addInitialProgressions(String sub){

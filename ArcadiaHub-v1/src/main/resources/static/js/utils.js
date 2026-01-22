@@ -10,28 +10,42 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     )
 }
 
-function determineWinner({ player, enemy, timerId }) {  
-    clearTimeout(timerId)
-    document.querySelector('#displayText').style.display = 'flex'
+function determineWinner({ player, enemy, timerId }) {
+    clearTimeout(timerId);
+    gameStarted = false;
+
+    const displayElement = document.querySelector('#displayText');
+    displayElement.style.display = 'flex';
+
+    let winnerId = null;
+
     if (player.health === enemy.health) {
-        document.querySelector('#displayText').innerHTML = 'Tie'
+        displayElement.innerHTML = 'Tie';
     } else if (player.health > enemy.health) {
-        document.querySelector('#displayText').innerHTML = 'Player 1 Wins'
+        displayElement.innerHTML = 'Player 1 Wins';
+        winnerId = player.playerId;
     } else if (player.health < enemy.health) {
-        document.querySelector('#displayText').innerHTML = 'Player 2 Wins'
+        displayElement.innerHTML = 'Player 2 Wins';
+        winnerId = enemy.playerId;
+    }
+
+    // Повикување на функцијата од index.js за зачувување во база
+    if (winnerId) {
+        finalizeMatch(winnerId);
     }
 }
 
-let timer = 60
-let timerId
+let timer = 90;
+let timerId;
+
 function decreaseTimer() {
-    if (timer > 0) {
-        timerId = setTimeout(decreaseTimer, 1000)
-        timer--
-        document.querySelector('#timer').innerHTML = timer
+    if (timer > 0 && gameStarted) {
+        timerId = setTimeout(decreaseTimer, 1000);
+        timer--;
+        document.querySelector('#timer').innerHTML = timer;
     }
 
-    if (timer === 0) {
-        determineWinner({ player, enemy, timerId })
+    if (timer === 0 && gameStarted) {
+        determineWinner({ player, enemy, timerId });
     }
 }
