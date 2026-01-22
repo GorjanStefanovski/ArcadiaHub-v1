@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 863810700558-oga7cft7qase6094fr348bh801q9apuf.apps.googleusercontent.com
+            client-secret: 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
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ArcadiaHubV1
+    username: postgres
+    password: Gogo1710!
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

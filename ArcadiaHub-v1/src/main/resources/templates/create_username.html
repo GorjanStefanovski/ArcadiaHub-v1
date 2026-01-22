@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Username</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+<div class="container mt-5">
+    <div class="card bg-secondary text-white mx-auto" style="max-width: 400px;">
+        <div class="card-header text-center">
+            <h3>Choose Your Username</h3>
+        </div>
+        <div class="card-body">
+           <!-- <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>-->
+            <form method="post" action="/home/createUsername">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           class="form-control"
+                           placeholder="Enter your username"
+                           required
+                           minlength="3"
+                           maxlength="20">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WELCOME_USER</title>
+</head>
+<body>
+<!--<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>-->
+<h1 th:text="'Hello, ' + ${username} + '!'"></h1>
+<p>You are now ready to fight!</p>
+<a th:href="@{/home/statistics}" class="btn btn-primary">Go to Profile</a>
+<a th:href="@{/fight/lobby}" class="btn btn-danger">Find a Match</a>
+<a th:href="@{/home/leaderboardFilter}" class="btn btn-danger">View leaderboards!</a>
+<a th:href="@{/friends/addFriend}" class="btn btn-danger">View and add friends!</a>
+</body>
+</html>
