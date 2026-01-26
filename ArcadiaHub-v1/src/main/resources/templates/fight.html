@@ -7,7 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
-    body { margin: 0; background: #000; color: white; }
+    body { margin: 0; background: #000; color: white; overflow: hidden; }
+
     #overlay {
       position: absolute;
       top: 10px;
@@ -19,18 +20,21 @@
       pointer-events: none;
       z-index: 10;
     }
+
     #playerHealthContainer, #enemyHealthContainer {
       position: relative;
       width: 45%;
       height: 30px;
       border: 4px solid white;
     }
+
     #playerHealth, #enemyHealth {
       position: absolute;
       top: 0; bottom: 0; left: 0;
       background: #818cf8;
       width: 100%;
     }
+
     #timer {
       background: black;
       width: 100px;
@@ -42,40 +46,92 @@
       border: 4px solid white;
       font-size: 1.5rem;
     }
+
+    #countdown-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      background: rgba(0,0,0,0.6);
+    }
+
+    #countdownText {
+      font-size: 10rem;
+      color: white;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+    /* РЕПРОГРАМИРАН ЕКРАН ЗА КРАЈ */
     #displayText {
       position: absolute;
       color: white;
       top: 0; right: 0; bottom: 0; left: 0;
-      display: flex;
+      display: none; /* Првично скриено, се пали преку JS */
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      pointer-events: all; /* Овозможува кликање на копчето */
+    }
+
+    #winStatus {
       font-size: 5rem;
-      pointer-events: none;
-      z-index: 20;
-      background: rgba(0,0,0,0.7);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    #backHomeBtn {
+      padding: 20px 40px;
+      font-size: 1.5rem;
+      background: #f05454;
+      color: white;
+      border: 6px solid white;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      pointer-events: auto;
+    }
+
+    #backHomeBtn:hover {
+      background: #818cf8;
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.6);
     }
   </style>
 </head>
 <body>
+
 <div id="overlay">
-  <!-- Player Health -->
   <div id="playerHealthContainer">
     <div id="playerHealth"></div>
   </div>
 
-  <!-- Timer -->
   <div id="timer">60</div>
 
-  <!-- Enemy Health -->
   <div id="enemyHealthContainer">
     <div id="enemyHealth"></div>
   </div>
 </div>
 
-<!-- Winner/Tie Overlay -->
-<div id="displayText" style="display: none;">Tie</div>
+<div id="countdown-overlay">
+  <div id="countdownText"></div>
+</div>
+
+<div id="displayText">
+  <h1 id="winStatus">TIE</h1>
+  <button id="backHomeBtn" onclick="leaveMatchAndGoHome()">BACK HOME</button>
+</div>
+
 
 <canvas id="canvas" width="1024" height="576"></canvas>
+
+<audio id="beepSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+<audio id="fightSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>

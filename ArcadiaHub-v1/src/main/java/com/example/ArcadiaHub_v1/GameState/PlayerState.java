@@ -15,6 +15,7 @@ public class PlayerState {
     private double speed;
     private Long classId;
     private Long playerId;
+    private boolean isHit=false;
 
     public double getX() { return x; }
     public void setX(double x) { this.x = x; }
@@ -29,7 +30,6 @@ public class PlayerState {
     public String getCurrentSprite() { return currentSprite; }
     public void setCurrentSprite(String sprite) { this.currentSprite = sprite; }
 
-    // Example attack method
     public void attack() {
         // implement attack logic here
     }
@@ -96,5 +96,13 @@ public class PlayerState {
 
     public void setDamage(double damage) {
         this.damage = damage;
+    }
+
+    public boolean isHit() {
+        return isHit;
+    }
+
+    public void setHit(boolean hit) {
+        isHit = hit;
     }
 }

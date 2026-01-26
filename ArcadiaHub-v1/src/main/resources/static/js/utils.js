@@ -12,31 +12,52 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 
 function determineWinner({ player, enemy, timerId }) {
     clearTimeout(timerId);
-    gameStarted = false;
 
-    const displayElement = document.querySelector('#displayText');
-    displayElement.style.display = 'flex';
-
-    let winnerId = null;
+    const displayEl = document.querySelector('#displayText');
+    const winStatusEl = document.querySelector('#winStatus');
 
     if (player.health === enemy.health) {
-        displayElement.innerHTML = 'Tie';
+        winStatusEl.innerHTML = 'TIE';
+        winStatusEl.style.color = 'white';
     } else if (player.health > enemy.health) {
-        displayElement.innerHTML = 'Player 1 Wins';
-        winnerId = player.playerId;
-    } else if (player.health < enemy.health) {
-        displayElement.innerHTML = 'Player 2 Wins';
-        winnerId = enemy.playerId;
+        if (playerNumber === 1) {
+            winStatusEl.innerHTML = 'YOU WON!';
+            winStatusEl.style.color = '#81b214';
+        } else {
+            winStatusEl.innerHTML = 'YOU LOST!';
+            winStatusEl.style.color = '#f05454';
+        }
+    } else if (enemy.health > player.health) {
+        if (playerNumber === 2) {
+            winStatusEl.innerHTML = 'YOU WON!';
+            winStatusEl.style.color = '#81b214';
+        } else {
+            winStatusEl.innerHTML = 'YOU LOST!';
+            winStatusEl.style.color = '#f05454';
+        }
     }
 
-    // Повикување на функцијата од index.js за зачувување во база
-    if (winnerId) {
-        finalizeMatch(winnerId);
-    }
+    setTimeout(() => {
+        displayEl.style.display = 'flex';
+
+        gsap.fromTo('#displayText',
+            { opacity: 0, scale: 0.8 },
+            { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }
+        );
+
+        gsap.from('#backHomeBtn', {
+            y: 30,
+            opacity: 0,
+            delay: 0.4,
+            duration: 0.4
+        });
+    }, 1500);
 }
+
 
 let timer = 90;
 let timerId;
+
 
 function decreaseTimer() {
     if (timer > 0 && gameStarted) {
@@ -48,4 +69,11 @@ function decreaseTimer() {
     if (timer === 0 && gameStarted) {
         determineWinner({ player, enemy, timerId });
     }
+}
+
+function leaveMatchAndGoHome() {
+    fetch('/fight/leave-match', { method: 'POST' })
+        .then(() => {
+            window.location.href = '/home/welcomeUser';
+        });
 }

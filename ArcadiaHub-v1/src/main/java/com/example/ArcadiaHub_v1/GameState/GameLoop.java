@@ -50,6 +50,7 @@ public class GameLoop {
         }
     }
 
+    /*
     private void checkCollisions(MatchState match) {
         PlayerState p1 = match.getPlayer1();
         PlayerState p2 = match.getPlayer2();
@@ -62,6 +63,33 @@ public class GameLoop {
         if (p2.isAttacking() && calculateHit(p2, p1)) {
             p1.setHealth(p1.getHealth() - (int)p2.getDamage());
             p2.setAttacking(false);
+        }
+    }
+     */
+
+    private void checkCollisions(MatchState match) {
+        PlayerState p1 = match.getPlayer1();
+        PlayerState p2 = match.getPlayer2();
+        if (p1.isAttacking() && calculateHit(p1, p2)) {
+            p2.setHealth(p2.getHealth() - (int)p1.getDamage());
+            p2.setHit(true);
+            p1.setAttacking(false);
+
+            new Thread(() -> {
+                try { Thread.sleep(150); } catch (InterruptedException e) {}
+                p2.setHit(false);
+            }).start();
+        }
+
+        if (p2.isAttacking() && calculateHit(p2, p1)) {
+            p1.setHealth(p1.getHealth() - (int)p2.getDamage());
+            p1.setHit(true);
+            p2.setAttacking(false);
+
+            new Thread(() -> {
+                try { Thread.sleep(150); } catch (InterruptedException e) {}
+                p1.setHit(false);
+            }).start();
         }
     }
 

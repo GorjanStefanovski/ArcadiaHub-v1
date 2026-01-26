@@ -42,13 +42,6 @@
             padding: 15px;
             border-radius: 0;
         }
-        .search-input:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            outline: none;
-        }
 
         .list-item {
             background: rgba(0, 0, 0, 0.3);
@@ -59,10 +52,6 @@
             justify-content: space-between;
             align-items: center;
             transition: 0.3s;
-        }
-        .list-item:hover {
-            border-color: #ff6b35;
-            background: rgba(255, 107, 53, 0.05);
         }
 
         .username-text { font-size: 0.75rem; color: #00ff88; }
@@ -77,50 +66,73 @@
             transition: 0.3s;
             cursor: pointer;
         }
-        .btn-accept { background: #00ff88; color: #000; }
+        .btn-accept { background: #00ff88; color: #000; margin-right: 5px; }
         .btn-reject { background: #ff4757; color: #fff; }
         .btn-search { background: #ff6b35; color: #fff; }
 
-        .empty-msg { font-size: 0.6rem; color: #666; font-style: italic; }
+        /* ГОЛЕМА НОТИФИКАЦИЈА */
+        #friendToast {
+            min-width: 450px;
+            border: 3px solid #ff6b35 !important;
+            background: rgba(15, 15, 35, 0.98) !important;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.6);
+            font-family: 'Press Start 2P', cursive;
+        }
 
-        /* Alert Styling */
-        .cyber-alert {
-            font-size: 0.6rem;
-            border-radius: 0;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-width: 1px;
+        .toast-header-custom {
+            color: #ff6b35;
+            font-size: 0.8rem;
+            border-bottom: 1px solid #444;
+            padding: 15px;
             display: flex;
             align-items: center;
+        }
+
+        .toast-body-custom {
+            padding: 20px;
+            font-size: 0.75rem;
+            color: #00ff88;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100">
+    <div id="friendToast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header-custom">
+            <i class="bi bi-exclamation-octagon-fill me-2"></i>
+            <span>SYSTEM NOTIFICATION</span>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body-custom">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+</div>
+
+<audio id="notifSound" src="/sounds/beep.mp3" preload="auto"></audio>
 
 <div class="container">
     <div class="row">
         <div class="col-lg-5">
             <div class="cyber-card">
                 <h3 class="header-neon">ADD NEW FRIEND</h3>
-
-                <div th:if="${error}" class="cyber-alert alert-danger" style="background: rgba(255, 71, 87, 0.1); border-color: #ff4757; color: #ff4757;">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}">Error</span>
-                </div>
-                <div th:if="${success}" class="cyber-alert alert-success" style="background: rgba(0, 255, 136, 0.1); border-color: #00ff88; color: #00ff88;">
-                    <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${success}">Success</span>
-                </div>
+                <div th:if="${error}" class="alert alert-danger" style="font-size: 0.6rem; border-radius: 0; background: rgba(255,71,87,0.1); color: #ff4757; border: 1px solid #ff4757;" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" style="font-size: 0.6rem; border-radius: 0; background: rgba(0,255,136,0.1); color: #00ff88; border: 1px solid #00ff88;" th:text="${success}"></div>
 
                 <form th:action="@{/friends/sendRequest}" method="post" class="d-flex">
-                    <input type="text" name="receiverUsername" class="form-control search-input me-2" placeholder="ENTER USERNAME..." required>
+                    <input type="text" name="receiverUsername" class="form-control search-input me-2" placeholder="USERNAME..." required>
                     <button type="submit" class="btn-action btn-search">SEND</button>
                 </form>
             </div>
 
             <div class="cyber-card">
                 <h3 class="header-neon">INCOMING REQUESTS</h3>
-                <div th:if="${#lists.isEmpty(receivedRequests)}" class="empty-msg">No pending transmissions...</div>
+                <div th:if="${#lists.isEmpty(receivedRequests)}" class="status-tag">No pending transmissions...</div>
                 <div th:each="req : ${receivedRequests}" class="list-item">
-                    <span class="username-text" th:text="${req.sender.username}">PLAYER_X</span>
+                    <span class="username-text" th:text="${req.sender.username}">PLAYER</span>
                     <div>
                         <form th:action="@{/friends/process}" method="post" class="d-inline">
                             <input type="hidden" name="requestId" th:value="${req.id}">
@@ -138,10 +150,10 @@
 
             <div class="cyber-card">
                 <h3 class="header-neon">SENT REQUESTS</h3>
-                <div th:if="${#lists.isEmpty(sentRequests)}" class="empty-msg">None active.</div>
+                <div th:if="${#lists.isEmpty(sentRequests)}" class="status-tag">None active.</div>
                 <div th:each="req : ${sentRequests}" class="list-item">
-                    <span class="username-text" th:text="${req.receiver.username}">PLAYER_Y</span>
-                    <span class="status-tag">SIGNAL SENT...</span>
+                    <span class="username-text" th:text="${req.receiver.username}">PLAYER</span>
+                    <span class="status-tag" style="color: #ff6b35;">SIGNAL SENT...</span>
                 </div>
             </div>
         </div>
@@ -149,12 +161,12 @@
         <div class="col-lg-7">
             <div class="cyber-card h-100">
                 <h3 class="header-neon">FRIENDS_LIST.DLL</h3>
-                <div th:if="${#lists.isEmpty(friends)}" class="empty-msg">Your alliance is currently empty.</div>
+                <div th:if="${#lists.isEmpty(friends)}" class="status-tag">Empty alliance.</div>
                 <div th:each="friend : ${friends}" class="list-item">
                     <div class="d-flex align-items-center">
-                        <i class="bi bi-person-fill me-3" style="color: #ff6b35; font-size: 1.5rem;"></i>
+                        <i class="bi bi-person-fill me-3" style="color: #ff6b35;"></i>
                         <div>
-                            <div class="username-text" th:text="${friend.username}">FRIEND_NAME</div>
+                            <div class="username-text" th:text="${friend.username}">FRIEND</div>
                             <div class="status-tag">LEVEL: <span th:text="${friend.accountLevel}">1</span></div>
                         </div>
                     </div>
@@ -165,8 +177,40 @@
     </div>
 
     <div class="text-center mt-4">
-        <a th:href="@{/home/welcomeUser}" class="btn-action btn-search" style="background: transparent; border: 1px solid #666; text-decoration: none;">BACK TO HUB</a>
+        <a th:href="@{/home/welcomeUser}" class="btn-action btn-search" style="text-decoration: none; background: transparent; border: 1px solid #444;">BACK TO HUB</a>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    var socket = new SockJS('/ws');
+    var stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('Arcadia Network Online');
+        stompClient.subscribe('/user/queue/friend-notifications', function (msg) {
+            showNotification(msg.body);
+        });
+    });
+
+    function showNotification(message) {
+        const toastMessage = document.getElementById('toastMessage');
+        const toastEl = document.getElementById('friendToast');
+        const notifSound = document.getElementById('notifSound');
+
+        toastMessage.innerText = message;
+        if(notifSound) notifSound.play().catch(e => console.log("Audio play blocked"));
+
+        const toast = new bootstrap.Toast(toastEl, { delay: 8000 });
+        toast.show();
+
+        setTimeout(() => {
+            window.location.reload();
+        }, 7000);
+    }
+</script>
 </body>
 </html>

@@ -31,6 +31,7 @@ const characterConfigs = {
     1: {
         imageSrc: '/images/samuraiMack/Idle.png',
         framesMax: 8, scale: 2.5, offset: { x: 215, y: 157 },
+        framesHold: 8,
         sprites: {
             idle: { imageSrc: '/images/samuraiMack/Idle.png', framesMax: 8 },
             run: { imageSrc: '/images/samuraiMack/Run.png', framesMax: 8 },
@@ -45,6 +46,7 @@ const characterConfigs = {
     2: {
         imageSrc: '/images/kenji/Idle.png',
         framesMax: 4, scale: 2.5, offset: { x: 215, y: 167 },
+        framesHold: 8,
         sprites: {
             idle: { imageSrc: '/images/kenji/Idle.png', framesMax: 4 },
             run: { imageSrc: '/images/kenji/Run.png', framesMax: 8 },
@@ -71,6 +73,7 @@ function sendMovement(key, state) {
     });
 }
 
+// ОВАА ФУНКЦИЈА ЈА ПОВИКУВА ТВОЈАТА JAVA handleMatchEnd ФУНКЦИЈА
 function finalizeMatch(winnerDbId) {
     if (!stompClient || !stompClient.connected) return;
     stompClient.publish({
@@ -110,7 +113,7 @@ function connectWebSocket() {
             console.log('WS Connected');
 
             stompClient.subscribe(`/topic/match/${matchId}/redirect`, message => {
-                setTimeout(() => { window.location.href = message.body; }, 4000);
+                console.log("Match data processed on server.");
             });
 
             stompClient.subscribe(`/topic/match/${matchId}/state`, message => {
@@ -125,7 +128,8 @@ function connectWebSocket() {
                         velocity: { x: 0, y: 0 },
                         health: state.player1.health,
                         playerId: state.player1.playerId,
-                        ...p1Conf
+                        ...p1Conf,
+                        framesHold: p1Conf.framesHold
                     });
 
                     enemy = new Fighter({
@@ -133,14 +137,15 @@ function connectWebSocket() {
                         velocity: { x: 0, y: 0 },
                         health: state.player2.health,
                         playerId: state.player2.playerId,
-                        ...p2Conf
+                        ...p2Conf,
+                        framesHold: p2Conf.framesHold
                     });
 
                     localFighter = (playerNumber === 1) ? player : enemy;
                     opponentFighter = (playerNumber === 1) ? enemy : player;
-                    gameStarted = true;
+
                     animate();
-                    decreaseTimer();
+                    startMatchCountdown();
                     return;
                 }
 
@@ -150,19 +155,26 @@ function connectWebSocket() {
                 player.position.y = state.player1.y + groundLevel;
                 enemy.position.x = state.player2.x;
                 enemy.position.y = state.player2.y + groundLevel;
-
                 player.health = state.player1.health;
                 enemy.health = state.player2.health;
 
                 updateFighterAnimation(player, state.player1);
                 updateFighterAnimation(enemy, state.player2);
 
-                if (player.health <= 0 || enemy.health <= 0) {
-                    gameStarted = false;
-                    determineWinner({ player, enemy, timerId });
 
-                    if (player.health <= 0) player.switchSprite('death');
-                    else enemy.switchSprite('death');
+                if (player.health <= 0 || enemy.health <= 0) {
+                    if (gameStarted) {
+                        gameStarted = false;
+
+                        const winnerId = player.health <= 0 ? enemy.playerId : player.playerId;
+                        if (playerNumber === 1) {
+                            console.log("Player 1 sending final results to server...");
+                            finalizeMatch(winnerId);
+                        }
+                        determineWinner({ player, enemy, timerId });
+                        if (player.health <= 0) player.switchSprite('death');
+                        else enemy.switchSprite('death');
+                    }
                 }
             });
         }
@@ -170,12 +182,43 @@ function connectWebSocket() {
     stompClient.activate();
 }
 
+function startMatchCountdown() {
+    const countdownEl = document.querySelector('#countdownText');
+    const overlayEl = document.querySelector('#countdown-overlay');
+    const beep = document.querySelector('#beepSound');
+    const fightSound = document.querySelector('#fightSound');
+
+    let count = 5;
+
+    const countInterval = setInterval(() => {
+        if (count > 0) {
+            countdownEl.innerHTML = count;
+            beep.play().catch(e => console.log("Audio play blocked"));
+            gsap.fromTo('#countdownText', { scale: 5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
+            count--;
+        } else if (count === 0) {
+            countdownEl.innerHTML = 'FIGHT!';
+            countdownEl.style.color = '#ff0000';
+            fightSound.play().catch(e => console.log("Audio play blocked"));
+            gsap.fromTo('#countdownText', { scale: 0, opacity: 0 }, { scale: 1.5, opacity: 1, duration: 0.4, ease: "expo.out" });
+            count--;
+        } else {
+            clearInterval(countInterval);
+            overlayEl.style.display = 'none';
+            gameStarted = true;
+            decreaseTimer();
+        }
+    }, 1000);
+}
+
 function updateFighterAnimation(fighter, remoteState) {
     if (fighter.dead) return;
-    if (remoteState.attacking) fighter.attack();
-    else if (remoteState.vy < 0) fighter.switchSprite('jump');
-    else if (remoteState.vy > 0) fighter.switchSprite('fall');
-    else if (remoteState.vx !== 0) fighter.switchSprite('run');
+    if (remoteState.hit) { fighter.switchSprite('takeHit'); return; }
+    if (remoteState.attacking) { fighter.attack(); return; }
+    const isOnGround = remoteState.y >= 0;
+    if (remoteState.vy < -1) fighter.switchSprite('jump');
+    else if (remoteState.vy > 5 && !isOnGround) fighter.switchSprite('fall');
+    else if (Math.abs(remoteState.vx) > 0.5) fighter.switchSprite('run');
     else fighter.switchSprite('idle');
 }
 
@@ -185,13 +228,15 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height);
     background.update();
     shop.update();
-    player.update();
-    enemy.update();
 
-    const p1Width = (player.health / player.maxHealth) * 100;
-    const p2Width = (enemy.health / enemy.maxHealth) * 100;
-    document.querySelector('#playerHealth').style.width = Math.max(0, p1Width) + '%';
-    document.querySelector('#enemyHealth').style.width = Math.max(0, p2Width) + '%';
+    if (player && enemy) {
+        player.update();
+        enemy.update();
+        const p1Width = (player.health / 100) * 100;
+        const p2Width = (enemy.health / 100) * 100;
+        document.querySelector('#playerHealth').style.width = Math.max(0, p1Width) + '%';
+        document.querySelector('#enemyHealth').style.width = Math.max(0, p2Width) + '%';
+    }
 }
 
 connectWebSocket();

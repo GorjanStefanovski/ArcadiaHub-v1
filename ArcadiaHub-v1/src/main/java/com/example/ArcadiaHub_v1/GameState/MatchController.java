@@ -100,6 +100,8 @@
             MatchState state = matchRegistry.getOrCreateMatch(matchId);
             if (state == null || state.isEnded()) return;
 
+
+
             state.setEnded(true);
             Long winnerId = payload.get("winnerId");
 
