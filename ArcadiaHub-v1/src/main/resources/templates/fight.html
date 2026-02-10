@@ -104,7 +104,7 @@
     }
   </style>
 </head>
-<body>
+<body th:data-game-type="${gameType != null ? gameType : 'default-game'}">
 
 <div id="overlay">
   <div id="playerHealthContainer">

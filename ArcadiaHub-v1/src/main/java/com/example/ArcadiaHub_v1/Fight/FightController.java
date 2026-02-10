@@ -36,7 +36,10 @@ public class FightController {
     private final MatchRepository matchRepository;
     private final PlayedMatchRepository playedMatchRepository;
     private final SimpMessagingTemplate messagingTemplate;
+
     private final Map<String, Long> playerToMatch = new ConcurrentHashMap<>();
+    private final Map<Long, String> matchGameTypes = new ConcurrentHashMap<>();
+
     private final MatchRegistry matchRegistry;
 
     public FightController(FightingClassRepository fightingClassRepository,
@@ -54,36 +57,52 @@ public class FightController {
     }
 
     @GetMapping("/lobby")
-    public String goToLobby() {
+    public String lobby(@RequestParam("gameType") String gameType, Model model) {
+        model.addAttribute("gameType", gameType);
         return "fight_lobby";
     }
 
+    @GetMapping("/choose-game")
+    public String chooseGame() {
+        return "choose_game";
+    }
+
     @PostMapping("/queue")
-    public String queue(@RequestParam("chosenClass") int chosenClass, OAuth2AuthenticationToken auth, RedirectAttributes ra) {
+    public String queue(@RequestParam("chosenClass") int chosenClass,
+                        @RequestParam("gameType") String gameType,
+                        OAuth2AuthenticationToken auth,
+                        RedirectAttributes ra) {
         FightingClass light_or_heavy = fightingClassRepository.findByFcId((long) chosenClass);
         Player p = playerRepository.findByGoogleSub(auth.getPrincipal().getAttribute("sub"));
+
         playerToMatch.remove(auth.getPrincipal().getAttribute("sub"));
-        QueuedPlayer player = new QueuedPlayer(p, light_or_heavy);
-        queuedPlayers.add(player);
 
-        if (queuedPlayers.size() >= 2) {
-            QueuedPlayer one = queuedPlayers.poll();
-            QueuedPlayer two = queuedPlayers.poll();
+        QueuedPlayer opponent = queuedPlayers.stream()
+                .filter(qp -> qp.gameType().equals(gameType))
+                .findFirst()
+                .orElse(null);
 
-            Match match = new Match();
-            match = matchRepository.save(match);
+        if (opponent != null) {
+            queuedPlayers.remove(opponent);
 
-            PlayedMatch currentMatch = new PlayedMatch(match, one.player(), two.player(), one.fc(), two.fc());
+            Match match = matchRepository.save(new Match());
+
+            matchGameTypes.put(match.getId(), gameType);
+
+            PlayedMatch currentMatch = new PlayedMatch(match, p, opponent.player(), light_or_heavy, opponent.fc());
             playedMatchRepository.save(currentMatch);
 
-            playerToMatch.put(one.player().getGoogleSub(), match.getId());
-            playerToMatch.put(two.player().getGoogleSub(), match.getId());
+            playerToMatch.put(p.getGoogleSub(), match.getId());
+            playerToMatch.put(opponent.player().getGoogleSub(), match.getId());
 
-            messagingTemplate.convertAndSendToUser(one.player().getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
-            messagingTemplate.convertAndSendToUser(two.player().getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
+            messagingTemplate.convertAndSendToUser(p.getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
+            messagingTemplate.convertAndSendToUser(opponent.player().getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
+        } else {
+
+            queuedPlayers.add(new QueuedPlayer(p, light_or_heavy, gameType));
         }
 
-        ra.addFlashAttribute("message", "Queued for " + chosenClass);
+        ra.addAttribute("gameType", gameType);
         return "redirect:/fight/waiting";
     }
 
@@ -110,12 +129,16 @@ public class FightController {
     }
 
     @GetMapping("/waiting")
-    public String waitingPage(Model model, Authentication auth) {
+    public String waitingPage(@RequestParam("gameType") String gameType,
+                              Model model,
+                              Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
-            return "redirect:/fight/lobby";
+            return "redirect:/fight/lobby?gameType=" + gameType;
         }
+
         String sub = ((OAuth2AuthenticationToken) auth).getPrincipal().getAttribute("sub");
         model.addAttribute("sub", sub);
+        model.addAttribute("gameType", gameType);
         return "fight_waiting";
     }
 
@@ -125,6 +148,9 @@ public class FightController {
         PlayedMatch playedMatch = playedMatchRepository.findByMatchId(matchId);
 
         if (playedMatch == null) return "redirect:/fight/lobby";
+
+        String gameType = matchGameTypes.getOrDefault(matchId, "default");
+        model.addAttribute("gameType", gameType);
 
         FightingClass fc1 = fightingClassRepository.findById(playedMatch.getFcIdPlayerOne()).orElseThrow();
         FightingClass fc2 = fightingClassRepository.findById(playedMatch.getFcIdPlayerTwo()).orElseThrow();

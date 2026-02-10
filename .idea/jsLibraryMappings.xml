@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{@stomp/stompjs, bootstrap, bootstrap-icons, gsap, sockjs-client, stomp.js, stompjs}" />
-    <file url="file://$PROJECT_DIR$/ArcadiaHub-v1" libraries="{@stomp/stompjs, bootstrap, bootstrap-icons, gsap, sockjs-client, stomp.js, stompjs}" />
-  </component>
-</project>

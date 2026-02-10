@@ -45,10 +45,13 @@
     <p>Queue position: <strong id="queue-position">Checking...</strong></p>
     <p>Time left: <strong id="time-left">60</strong>s</p>
 
-    <button class="btn btn-cancel btn-lg px-4" id="cancel-queue">Cancel Queue</button>
+    <a class="btn btn-cancel btn-lg px-4"
+       th:href="@{/fight/lobby(gameType=${gameType})}">
+        Cancel Queue
+    </a>
 </div>
 
-<script>
+<script th:inline="javascript">
     let pollInterval = null;
     let timeoutInterval = null;
     let timeLeft = 60;
@@ -65,11 +68,9 @@
             .catch(error => console.error('Polling error:', error));
     }
 
-    // Start polling
     pollInterval = setInterval(checkMatch, 3000);
     checkMatch();
 
-    // Start timeout countdown
     timeoutInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('time-left').textContent = timeLeft;
@@ -79,14 +80,6 @@
             document.getElementById('queue-position').textContent = 'No opponent found. Try again?';
         }
     }, 1000);
-
-    // Cancel button
-    document.getElementById('cancel-queue').addEventListener('click', function() {
-        clearInterval(pollInterval);
-        clearInterval(timeoutInterval);
-        // Send cancel to server (add endpoint later)
-        window.location.href = '/fight/lobby';
-    });
 </script>
 </body>
 </html>

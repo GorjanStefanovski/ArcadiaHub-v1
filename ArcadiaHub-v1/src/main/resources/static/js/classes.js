@@ -1,3 +1,6 @@
+const tintCanvas = document.createElement('canvas');
+const tintC = tintCanvas.getContext('2d');
+
 class Sprite {
     constructor({ position, imageSrc, scale = 1, framesMax = 1, offset = { x: 0, y: 0 }, framesHold = 5 }) {
         this.position = position
@@ -12,17 +15,72 @@ class Sprite {
     }
 
     draw() {
+        if (!this.image || !this.image.complete || this.image.naturalWidth === 0) return;
+
+        const crop = {
+            position: { x: this.framesCurrent * (this.image.width / this.framesMax), y: 0 },
+            width: this.image.width / this.framesMax,
+            height: this.image.height
+        }
+
+        const pos = {
+            x: this.position.x - this.offset.x,
+            y: this.position.y - this.offset.y,
+            width: (this.image.width / this.framesMax) * this.scale,
+            height: this.image.height * this.scale
+        }
+
         c.drawImage(
             this.image,
-            this.framesCurrent * (this.image.width / this.framesMax),
-            0,
-            this.image.width / this.framesMax,
-            this.image.height,
-            this.position.x - this.offset.x,
-            this.position.y - this.offset.y,
-            (this.image.width / this.framesMax) * this.scale,
-            this.image.height * this.scale
+            crop.position.x, crop.position.y, crop.width, crop.height,
+            pos.x, pos.y, pos.width, pos.height
         )
+
+        const gameType = document.body.getAttribute('data-game-type');
+
+        if (gameType === 'boxing-game') {
+            tintCanvas.width = crop.width;
+            tintCanvas.height = crop.height;
+
+            tintC.clearRect(0, 0, crop.width, crop.height);
+
+            tintC.drawImage(
+                this.image,
+                crop.position.x, crop.position.y, crop.width, crop.height,
+                0, 0, crop.width, crop.height
+            );
+
+            tintC.globalCompositeOperation = 'source-in';
+            tintC.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            tintC.fillRect(0, 0, crop.width, crop.height);
+
+            c.drawImage(
+                tintCanvas,
+                pos.x, pos.y, pos.width, pos.height
+            );
+        }
+
+        if (gameType === 'karate-game') {
+            tintCanvas.width = crop.width;
+            tintCanvas.height = crop.height;
+
+            tintC.clearRect(0, 0, crop.width, crop.height);
+
+            tintC.drawImage(
+                this.image,
+                crop.position.x, crop.position.y, crop.width, crop.height,
+                0, 0, crop.width, crop.height
+            );
+
+            tintC.globalCompositeOperation = 'source-in';
+            tintC.fillStyle = 'rgba(255, 252, 127, 0.3)';
+            tintC.fillRect(0, 0, crop.width, crop.height);
+
+            c.drawImage(
+                tintCanvas,
+                pos.x, pos.y, pos.width, pos.height
+            );
+        }
     }
 
     animateFrames() {

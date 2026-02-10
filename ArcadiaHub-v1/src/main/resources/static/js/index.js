@@ -2,6 +2,9 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 const gravity = 0.7
 
+const selectedGame = document.body.getAttribute('data-game-type') || 'default';
+const assetPath = `/images/default-game`;
+
 let stompClient = null;
 let localFighter = null;
 let opponentFighter = null;
@@ -17,44 +20,44 @@ c.fillRect(0, 0, canvas.width, canvas.height)
 
 const background = new Sprite({
     position: { x: 0, y: 0 },
-    imageSrc: '/images/background.png'
+    imageSrc: `${assetPath}/background.png`
 })
 
 const shop = new Sprite({
     position: { x: 600, y: 128 },
-    imageSrc: '/images/shop.png',
+    imageSrc: `${assetPath}/shop.png`,
     scale: 2.75,
     framesMax: 6
 })
 
 const characterConfigs = {
     1: {
-        imageSrc: '/images/samuraiMack/Idle.png',
+        imageSrc: `${assetPath}/samuraiMack/Idle.png`,
         framesMax: 8, scale: 2.5, offset: { x: 215, y: 157 },
         framesHold: 8,
         sprites: {
-            idle: { imageSrc: '/images/samuraiMack/Idle.png', framesMax: 8 },
-            run: { imageSrc: '/images/samuraiMack/Run.png', framesMax: 8 },
-            jump: { imageSrc: '/images/samuraiMack/Jump.png', framesMax: 2 },
-            fall: { imageSrc: '/images/samuraiMack/Fall.png', framesMax: 2 },
-            attack1: { imageSrc: '/images/samuraiMack/Attack1.png', framesMax: 6 },
-            takeHit: { imageSrc: '/images/samuraiMack/Take Hit - white silhouette.png', framesMax: 4 },
-            death: { imageSrc: '/images/samuraiMack/Death.png', framesMax: 6 }
+            idle: { imageSrc: `${assetPath}/samuraiMack/Idle.png`, framesMax: 8 },
+            run: { imageSrc: `${assetPath}/samuraiMack/Run.png`, framesMax: 8 },
+            jump: { imageSrc: `${assetPath}/samuraiMack/Jump.png`, framesMax: 2 },
+            fall: { imageSrc: `${assetPath}/samuraiMack/Fall.png`, framesMax: 2 },
+            attack1: { imageSrc: `${assetPath}/samuraiMack/Attack1.png`, framesMax: 6 },
+            takeHit: { imageSrc: `${assetPath}/samuraiMack/Take Hit - white silhouette.png`, framesMax: 4 },
+            death: { imageSrc: `${assetPath}/samuraiMack/Death.png`, framesMax: 6 }
         },
         attackBox: { offset: { x: 100, y: 50 }, width: 160, height: 50 }
     },
     2: {
-        imageSrc: '/images/kenji/Idle.png',
+        imageSrc: `${assetPath}/kenji/Idle.png`,
         framesMax: 4, scale: 2.5, offset: { x: 215, y: 167 },
         framesHold: 8,
         sprites: {
-            idle: { imageSrc: '/images/kenji/Idle.png', framesMax: 4 },
-            run: { imageSrc: '/images/kenji/Run.png', framesMax: 8 },
-            jump: { imageSrc: '/images/kenji/Jump.png', framesMax: 2 },
-            fall: { imageSrc: '/images/kenji/Fall.png', framesMax: 2 },
-            attack1: { imageSrc: '/images/kenji/Attack1.png', framesMax: 4 },
-            takeHit: { imageSrc: '/images/kenji/Take hit.png', framesMax: 3 },
-            death: { imageSrc: '/images/kenji/Death.png', framesMax: 7 }
+            idle: { imageSrc: `${assetPath}/kenji/Idle.png`, framesMax: 4 },
+            run: { imageSrc: `${assetPath}/kenji/Run.png`, framesMax: 8 },
+            jump: { imageSrc: `${assetPath}/kenji/Jump.png`, framesMax: 2 },
+            fall: { imageSrc: `${assetPath}/kenji/Fall.png`, framesMax: 2 },
+            attack1: { imageSrc: `${assetPath}/kenji/Attack1.png`, framesMax: 4 },
+            takeHit: { imageSrc: `${assetPath}/kenji/Take hit.png`, framesMax: 3 },
+            death: { imageSrc: `${assetPath}/kenji/Death.png`, framesMax: 7 }
         },
         attackBox: { offset: { x: -170, y: 50 }, width: 170, height: 50 }
     }

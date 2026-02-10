@@ -60,18 +60,15 @@
 </head>
 <body>
 <div class="container py-5">
-  <!-- Header -->
   <div class="text-center mb-5">
     <h1 class="display-4 fw-bold mb-3" style="color: #ff6b35; text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);">CHOOSE YOUR FIGHTER</h1>
     <p class="lead">Select your class and enter the arena</p>
   </div>
 
-  <!-- Class Selection -->
   <div class="row justify-content-center g-5">
-    <!-- Light Class Card -->
     <div class="col-md-5">
       <div class="class-card text-center p-4 h-100" onclick="selectClass(1)" id=1>
-        <img src="/images/samuraiMack/Idle.png" alt="Light Class" class="class-image mb-3" />
+        <img th:src="|/images/${gameType}/samuraiMack/Idle.png|" alt="Light Class" class="class-image mb-3" />
         <h3>LIGHT</h3>
         <div class="stats mb-4">
           <div class="stat-down mb-1">Damage ↓</div>
@@ -82,10 +79,9 @@
       </div>
     </div>
 
-    <!-- Heavy Class Card -->
     <div class="col-md-5">
       <div class="class-card text-center p-4 h-100" onclick="selectClass(2)" id=2>
-        <img src="/images/kenji/Idle.png" alt="Heavy Class" class="class-image mb-3" />
+        <img th:src="|/images/${gameType}/kenji/Idle.png|" alt="Heavy Class" class="class-image mb-3" />
         <h3>HEAVY</h3>
         <div class="stats mb-4">
           <div class="stat-up mb-1">Damage ↑</div>
@@ -97,10 +93,10 @@
     </div>
   </div>
 
-  <!-- Find Match Button (hidden until selection) -->
   <div class="text-center mt-5" id="fight-button-container" style="display: none;">
     <form th:action="@{queue}" method="post">
       <input type="hidden" name="chosenClass" id="chosenClassInput" />
+      <input type="hidden" name="gameType" th:value="${gameType}" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
       <button type="submit" class="btn btn-fight-ready btn-lg px-5">
@@ -202,6 +198,6 @@
 
   });
 </script>
-);
+
 </body>
 </html>
