@@ -1,6 +1,3 @@
-const tintCanvas = document.createElement('canvas');
-const tintC = tintCanvas.getContext('2d');
-
 class Sprite {
     constructor({ position, imageSrc, scale = 1, framesMax = 1, offset = { x: 0, y: 0 }, framesHold = 5 }) {
         this.position = position
@@ -35,52 +32,6 @@ class Sprite {
             crop.position.x, crop.position.y, crop.width, crop.height,
             pos.x, pos.y, pos.width, pos.height
         )
-
-        const gameType = document.body.getAttribute('data-game-type');
-
-        if (gameType === 'boxing-game') {
-            tintCanvas.width = crop.width;
-            tintCanvas.height = crop.height;
-
-            tintC.clearRect(0, 0, crop.width, crop.height);
-
-            tintC.drawImage(
-                this.image,
-                crop.position.x, crop.position.y, crop.width, crop.height,
-                0, 0, crop.width, crop.height
-            );
-
-            tintC.globalCompositeOperation = 'source-in';
-            tintC.fillStyle = 'rgba(255, 0, 0, 0.3)';
-            tintC.fillRect(0, 0, crop.width, crop.height);
-
-            c.drawImage(
-                tintCanvas,
-                pos.x, pos.y, pos.width, pos.height
-            );
-        }
-
-        if (gameType === 'karate-game') {
-            tintCanvas.width = crop.width;
-            tintCanvas.height = crop.height;
-
-            tintC.clearRect(0, 0, crop.width, crop.height);
-
-            tintC.drawImage(
-                this.image,
-                crop.position.x, crop.position.y, crop.width, crop.height,
-                0, 0, crop.width, crop.height
-            );
-
-            tintC.globalCompositeOperation = 'source-in';
-            tintC.fillStyle = 'rgba(255, 252, 127, 0.3)';
-            tintC.fillRect(0, 0, crop.width, crop.height);
-
-            c.drawImage(
-                tintCanvas,
-                pos.x, pos.y, pos.width, pos.height
-            );
-        }
     }
 
     animateFrames() {
@@ -143,7 +94,6 @@ class Fighter extends Sprite {
 
 
         if (this.currentSprite !== sprite) {
-            console.log(`Промена од ${this.currentSprite} во ${sprite}`);
             this.image = this.sprites[sprite].image
             this.framesMax = this.sprites[sprite].framesMax
             this.framesCurrent = 0

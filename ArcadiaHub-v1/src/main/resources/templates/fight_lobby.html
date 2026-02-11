@@ -126,34 +126,6 @@
 
     document.getElementById('fight-button-container').style.display = 'block';
   }
-
-  // Simulate queue (for demo - real queue on server)
-  /*
-  document.querySelector('form').addEventListener('submit', function(e) {
-    //e.preventDefault();
-
-  const queueStatus = document.getElementById('queue-status');
-  const queueText = document.getElementById('queue-text');
-  const queueCount = document.getElementById('queue-count');
-
-  queueText.textContent = 'FINDING OPPONENT...';
-  queueStatus.style.display = 'block';
-  queueCount.textContent = '1';
-
-  // Simulate finding match (2 seconds)
-  setTimeout(() => {
-    queueCount.textContent = '2';
-  }, 1000);
-
-  setTimeout(() => {
-    queueText.textContent = 'MATCH FOUND!';
-    setTimeout(() => {
-      // Redirect to fight page (in real app, server does this)
-      window.location.href = '/fight/match123'; // replace with real matchId
-    }, 1500);
-  }, 2000);
-}
-   */
   let stompClient = null;
   let isQueued = false;
 

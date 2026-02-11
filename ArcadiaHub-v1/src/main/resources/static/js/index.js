@@ -2,8 +2,23 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 const gravity = 0.7
 
+// 1. Детектирање на играта
 const selectedGame = document.body.getAttribute('data-game-type') || 'default';
-const assetPath = `/images/default-game`;
+
+// 2. Дефинирање на Глобалната Боја (Overlay Color)
+let globalOverlayColor = null;
+
+if (selectedGame.includes('boxing')) {
+    // Црвен филтер за Бокс (0.3 е транспарентност, колку поголем број - толку поцрвено)
+    globalOverlayColor = 'rgba(255, 0, 0, 0.3)';
+} else if (selectedGame.includes('karate')) {
+    // Жолт/Портокалов филтер за Карате
+    globalOverlayColor = 'rgba(255, 200, 0, 0.3)';
+}
+
+// Патеките се секогаш default (бидејќи ја користиме истата слика)
+const backgroundPath = `/images/default-game`;
+const charsPath = `/images/default-game`;
 
 let stompClient = null;
 let localFighter = null;
@@ -11,6 +26,8 @@ let opponentFighter = null;
 let player = null;
 let enemy = null;
 let gameStarted = false;
+
+// (Timer и determineWinner се во utils.js)
 
 const groundLevel = 330;
 canvas.width = 1024
@@ -20,47 +37,57 @@ c.fillRect(0, 0, canvas.width, canvas.height)
 
 const background = new Sprite({
     position: { x: 0, y: 0 },
-    imageSrc: `${assetPath}/background.png`
+    imageSrc: `${backgroundPath}/background.png`
 })
 
 const shop = new Sprite({
     position: { x: 600, y: 128 },
-    imageSrc: `${assetPath}/shop.png`,
+    imageSrc: `${backgroundPath}/shop.png`,
     scale: 2.75,
     framesMax: 6
 })
 
-const characterConfigs = {
-    1: {
-        imageSrc: `${assetPath}/samuraiMack/Idle.png`,
-        framesMax: 8, scale: 2.5, offset: { x: 215, y: 157 },
-        framesHold: 8,
-        sprites: {
-            idle: { imageSrc: `${assetPath}/samuraiMack/Idle.png`, framesMax: 8 },
-            run: { imageSrc: `${assetPath}/samuraiMack/Run.png`, framesMax: 8 },
-            jump: { imageSrc: `${assetPath}/samuraiMack/Jump.png`, framesMax: 2 },
-            fall: { imageSrc: `${assetPath}/samuraiMack/Fall.png`, framesMax: 2 },
-            attack1: { imageSrc: `${assetPath}/samuraiMack/Attack1.png`, framesMax: 6 },
-            takeHit: { imageSrc: `${assetPath}/samuraiMack/Take Hit - white silhouette.png`, framesMax: 4 },
-            death: { imageSrc: `${assetPath}/samuraiMack/Death.png`, framesMax: 6 }
-        },
-        attackBox: { offset: { x: 100, y: 50 }, width: 160, height: 50 }
+// Конфигурации за MACK и KENJI
+const mackConfig = {
+    imageSrc: `${charsPath}/samuraiMack/Idle.png`,
+    framesMax: 8, scale: 2.5, offset: { x: 215, y: 157 },
+    framesHold: 8,
+    sprites: {
+        idle: { imageSrc: `${charsPath}/samuraiMack/Idle.png`, framesMax: 8 },
+        run: { imageSrc: `${charsPath}/samuraiMack/Run.png`, framesMax: 8 },
+        jump: { imageSrc: `${charsPath}/samuraiMack/Jump.png`, framesMax: 2 },
+        fall: { imageSrc: `${charsPath}/samuraiMack/Fall.png`, framesMax: 2 },
+        attack1: { imageSrc: `${charsPath}/samuraiMack/Attack1.png`, framesMax: 6 },
+        takeHit: { imageSrc: `${charsPath}/samuraiMack/Take Hit - white silhouette.png`, framesMax: 4 },
+        death: { imageSrc: `${charsPath}/samuraiMack/Death.png`, framesMax: 6 }
     },
-    2: {
-        imageSrc: `${assetPath}/kenji/Idle.png`,
-        framesMax: 4, scale: 2.5, offset: { x: 215, y: 167 },
-        framesHold: 8,
-        sprites: {
-            idle: { imageSrc: `${assetPath}/kenji/Idle.png`, framesMax: 4 },
-            run: { imageSrc: `${assetPath}/kenji/Run.png`, framesMax: 8 },
-            jump: { imageSrc: `${assetPath}/kenji/Jump.png`, framesMax: 2 },
-            fall: { imageSrc: `${assetPath}/kenji/Fall.png`, framesMax: 2 },
-            attack1: { imageSrc: `${assetPath}/kenji/Attack1.png`, framesMax: 4 },
-            takeHit: { imageSrc: `${assetPath}/kenji/Take hit.png`, framesMax: 3 },
-            death: { imageSrc: `${assetPath}/kenji/Death.png`, framesMax: 7 }
-        },
-        attackBox: { offset: { x: -170, y: 50 }, width: 170, height: 50 }
-    }
+    attackBox: { offset: { x: 100, y: 50 }, width: 160, height: 50 }
+};
+
+const kenjiConfig = {
+    imageSrc: `${charsPath}/kenji/Idle.png`,
+    framesMax: 4, scale: 2.5, offset: { x: 215, y: 167 },
+    framesHold: 8,
+    sprites: {
+        idle: { imageSrc: `${charsPath}/kenji/Idle.png`, framesMax: 4 },
+        run: { imageSrc: `${charsPath}/kenji/Run.png`, framesMax: 8 },
+        jump: { imageSrc: `${charsPath}/kenji/Jump.png`, framesMax: 2 },
+        fall: { imageSrc: `${charsPath}/kenji/Fall.png`, framesMax: 2 },
+        attack1: { imageSrc: `${charsPath}/kenji/Attack1.png`, framesMax: 4 },
+        takeHit: { imageSrc: `${charsPath}/kenji/Take hit.png`, framesMax: 3 },
+        death: { imageSrc: `${charsPath}/kenji/Death.png`, framesMax: 7 }
+    },
+    attackBox: { offset: { x: -170, y: 50 }, width: 170, height: 50 }
+};
+
+// ID Maps
+const characterConfigs = {
+    1: mackConfig,
+    2: kenjiConfig,
+    3: mackConfig,
+    4: kenjiConfig,
+    5: mackConfig,
+    6: kenjiConfig
 }
 
 const keys = {
@@ -76,8 +103,7 @@ function sendMovement(key, state) {
     });
 }
 
-// ОВАА ФУНКЦИЈА ЈА ПОВИКУВА ТВОЈАТА JAVA handleMatchEnd ФУНКЦИЈА
-function finalizeMatch(winnerDbId) {
+window.finalizeMatch = function(winnerDbId) {
     if (!stompClient || !stompClient.connected) return;
     stompClient.publish({
         destination: `/app/match/${matchId}/end`,
@@ -116,7 +142,7 @@ function connectWebSocket() {
             console.log('WS Connected');
 
             stompClient.subscribe(`/topic/match/${matchId}/redirect`, message => {
-                console.log("Match data processed on server.");
+                console.log("Match Over. User should click Back to Home.");
             });
 
             stompClient.subscribe(`/topic/match/${matchId}/state`, message => {
@@ -125,6 +151,11 @@ function connectWebSocket() {
                 if (!player || !enemy) {
                     const p1Conf = characterConfigs[state.player1.classId];
                     const p2Conf = characterConfigs[state.player2.classId];
+
+                    if (!p1Conf || !p2Conf) {
+                        console.error("Missing config for IDs:", state.player1.classId, state.player2.classId);
+                        return;
+                    }
 
                     player = new Fighter({
                         position: { x: state.player1.x, y: state.player1.y + groundLevel },
@@ -152,7 +183,7 @@ function connectWebSocket() {
                     return;
                 }
 
-                if (!gameStarted) return;
+                if (!gameStarted && timer > 0) return;
 
                 player.position.x = state.player1.x;
                 player.position.y = state.player1.y + groundLevel;
@@ -164,17 +195,17 @@ function connectWebSocket() {
                 updateFighterAnimation(player, state.player1);
                 updateFighterAnimation(enemy, state.player2);
 
-
                 if (player.health <= 0 || enemy.health <= 0) {
                     if (gameStarted) {
                         gameStarted = false;
-
                         const winnerId = player.health <= 0 ? enemy.playerId : player.playerId;
+
                         if (playerNumber === 1) {
-                            console.log("Player 1 sending final results to server...");
                             finalizeMatch(winnerId);
                         }
+
                         determineWinner({ player, enemy, timerId });
+
                         if (player.health <= 0) player.switchSprite('death');
                         else enemy.switchSprite('death');
                     }
@@ -196,20 +227,20 @@ function startMatchCountdown() {
     const countInterval = setInterval(() => {
         if (count > 0) {
             countdownEl.innerHTML = count;
-            beep.play().catch(e => console.log("Audio play blocked"));
-            gsap.fromTo('#countdownText', { scale: 5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
+            if(beep) beep.play().catch(e => console.log("Audio play blocked"));
+            if(window.gsap) gsap.fromTo('#countdownText', { scale: 5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
             count--;
         } else if (count === 0) {
             countdownEl.innerHTML = 'FIGHT!';
             countdownEl.style.color = '#ff0000';
-            fightSound.play().catch(e => console.log("Audio play blocked"));
-            gsap.fromTo('#countdownText', { scale: 0, opacity: 0 }, { scale: 1.5, opacity: 1, duration: 0.4, ease: "expo.out" });
+            if(fightSound) fightSound.play().catch(e => console.log("Audio play blocked"));
+            if(window.gsap) gsap.fromTo('#countdownText', { scale: 0, opacity: 0 }, { scale: 1.5, opacity: 1, duration: 0.4, ease: "expo.out" });
             count--;
         } else {
             clearInterval(countInterval);
-            overlayEl.style.display = 'none';
+            if(overlayEl) overlayEl.style.display = 'none';
             gameStarted = true;
-            decreaseTimer();
+            decreaseTimer(); // Повик до utils.js
         }
     }, 1000);
 }
@@ -225,20 +256,34 @@ function updateFighterAnimation(fighter, remoteState) {
     else fighter.switchSprite('idle');
 }
 
+// 3. ФУНКЦИЈАТА ЗА ЦРТАЊЕ
 function animate() {
     window.requestAnimationFrame(animate);
     c.fillStyle = 'black';
     c.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Цртај ги елементите нормално
     background.update();
     shop.update();
 
     if (player && enemy) {
+        // Полу-проѕирен контраст зад играчите за да се гледаат (опционално, можеш да го тргнеш)
+        // c.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        // c.fillRect(0, 0, canvas.width, canvas.height);
+
         player.update();
         enemy.update();
+
         const p1Width = (player.health / 100) * 100;
         const p2Width = (enemy.health / 100) * 100;
         document.querySelector('#playerHealth').style.width = Math.max(0, p1Width) + '%';
         document.querySelector('#enemyHealth').style.width = Math.max(0, p2Width) + '%';
+    }
+
+    // 2. ВАЖНО: АКО ИМАМЕ ГЛОБАЛНА БОЈА, ЦРТАМЕ ПРЕКУ СЕ!
+    if (globalOverlayColor) {
+        c.fillStyle = globalOverlayColor;
+        c.fillRect(0, 0, canvas.width, canvas.height);
     }
 }
 

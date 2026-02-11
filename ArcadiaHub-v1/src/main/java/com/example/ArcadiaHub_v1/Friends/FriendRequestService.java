@@ -1,5 +1,6 @@
 package com.example.ArcadiaHub_v1.Friends;
 
+import com.example.ArcadiaHub_v1.EmailService.EmailService;
 import com.example.ArcadiaHub_v1.Player.Player;
 import com.example.ArcadiaHub_v1.Player.PlayerRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate; // НОВО
@@ -10,14 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class FriendRequestService {
     private final FriendRequestRepository requestRepository;
     private final PlayerRepository playerRepository;
-    private final SimpMessagingTemplate messagingTemplate; // НОВО
+    private final SimpMessagingTemplate messagingTemplate;// НОВО
+    private final EmailService emailService;
 
     public FriendRequestService(FriendRequestRepository requestRepository,
                                 PlayerRepository playerRepository,
-                                SimpMessagingTemplate messagingTemplate) {
+                                SimpMessagingTemplate messagingTemplate, EmailService emailService) {
         this.requestRepository = requestRepository;
         this.playerRepository = playerRepository;
         this.messagingTemplate = messagingTemplate;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -41,6 +44,13 @@ public class FriendRequestService {
                 "/queue/friend-notifications",
                 "New friend request from " + sender.getUsername()
         );
+
+
+        String emailSubject="ArcadiaHub: New Alliance Request";
+        String emailBody="Greetings "+receiver.getUsername()+"\n\n"+"The user "+sender.getUsername()+" wants to form an alliance with you on ArcadiaHub.\n"+
+                "Please log in to or decline this request!";
+
+        emailService.sendEmail(receiver.getEmail(),emailSubject,emailBody);
     }
 
     @Transactional
@@ -64,8 +74,18 @@ public class FriendRequestService {
                     "/queue/friend-notifications",
                     currentUser.getUsername() + " accepted your alliance request!"
             );
+
+            String emailSubject = "ArcadiaHub: Alliance Formed!";
+            String body="Great news "+sender.getUsername()+"!\n\n"+
+                    receiver.getUsername()+" has accepted you're friend request!\n"+
+                    "You are now connected.";
+            emailService.sendEmail(sender.getEmail(),emailSubject,body);
         } else if ("REJECT".equals(action)) {
             requestRepository.delete(request);
+            String emailSubject="ArcadiaHub: Request Update";
+            String emailBody="Hello "+sender.getUsername()+"\n\n"+
+                    receiver.getUsername()+" has declined you're friend request.";
+            emailService.sendEmail(sender.getEmail(),emailSubject,emailBody)  ;
         }
     }
 }

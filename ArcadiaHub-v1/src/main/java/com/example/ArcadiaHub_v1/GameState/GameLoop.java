@@ -50,23 +50,6 @@ public class GameLoop {
         }
     }
 
-    /*
-    private void checkCollisions(MatchState match) {
-        PlayerState p1 = match.getPlayer1();
-        PlayerState p2 = match.getPlayer2();
-
-        if (p1.isAttacking() && calculateHit(p1, p2)) {
-            p2.setHealth(p2.getHealth() - (int)p1.getDamage());
-            p1.setAttacking(false);
-        }
-
-        if (p2.isAttacking() && calculateHit(p2, p1)) {
-            p1.setHealth(p1.getHealth() - (int)p2.getDamage());
-            p2.setAttacking(false);
-        }
-    }
-     */
-
     private void checkCollisions(MatchState match) {
         PlayerState p1 = match.getPlayer1();
         PlayerState p2 = match.getPlayer2();

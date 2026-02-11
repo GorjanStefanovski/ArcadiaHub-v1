@@ -29,6 +29,10 @@ public class FakeDataInitializer {
             rep.save(new Player("defaultUsername101112","mail10@gmail.com","1234ymz",64,102,34,34000,8L));
             fcRep.save(new LightClass(20,100,10));
             fcRep.save(new HeavyClass(30,100,5));
+            fcRep.save(new LightClass(20,100,10));
+            fcRep.save(new HeavyClass(30,100,5));
+            fcRep.save(new LightClass(20,100,10));
+            fcRep.save(new HeavyClass(30,100,5));
             achievementRepository.save(new Achievement("Beginner Fighter", "Reached Level 1", 1));
             achievementRepository.save(new Achievement("Intermediate Fighter", "Reached Level 5", 5));
             achievementRepository.save(new Achievement("Expert Fighter", "Reached Level 10", 10));

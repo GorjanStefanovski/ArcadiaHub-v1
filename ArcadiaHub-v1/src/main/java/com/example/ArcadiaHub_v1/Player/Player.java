@@ -47,7 +47,6 @@ public class Player {
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     private List<FriendRequest> sentRequests = new ArrayList<>();
 
-    // Барања кои овој играч ги примил
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<FriendRequest> receivedRequests = new ArrayList<>();
 

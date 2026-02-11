@@ -1,6 +1,5 @@
 package com.example.ArcadiaHub_v1.Fight;
 
-
 import com.example.ArcadiaHub_v1.FightingClass.FightingClass;
 import com.example.ArcadiaHub_v1.FightingClass.FightingClassRepository;
 import com.example.ArcadiaHub_v1.GameState.MatchRegistry;
@@ -19,12 +18,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 
 @Controller
 @RequestMapping("/fight")
@@ -32,6 +31,7 @@ public class FightController {
 
     private final FightingClassRepository fightingClassRepository;
     private final PlayerRepository playerRepository;
+    // Листата на чекање сега мора да проверува и gameType
     private final Queue<QueuedPlayer> queuedPlayers = new ConcurrentLinkedQueue<>();
     private final MatchRepository matchRepository;
     private final PlayedMatchRepository playedMatchRepository;
@@ -57,7 +57,7 @@ public class FightController {
     }
 
     @GetMapping("/lobby")
-    public String lobby(@RequestParam("gameType") String gameType, Model model) {
+    public String lobby(@RequestParam(value = "gameType", defaultValue = "default") String gameType, Model model) {
         model.addAttribute("gameType", gameType);
         return "fight_lobby";
     }
@@ -68,11 +68,14 @@ public class FightController {
     }
 
     @PostMapping("/queue")
-    public String queue(@RequestParam("chosenClass") int chosenClass,
+    public String queue(@RequestParam("chosenClass") int chosenClassInput, // Ова е 1 (Light) или 2 (Heavy)
                         @RequestParam("gameType") String gameType,
                         OAuth2AuthenticationToken auth,
                         RedirectAttributes ra) {
-        FightingClass light_or_heavy = fightingClassRepository.findByFcId((long) chosenClass);
+
+        long realClassId = calculateRealClassId(chosenClassInput, gameType);
+
+        FightingClass selectedClass = fightingClassRepository.findByFcId(realClassId);
         Player p = playerRepository.findByGoogleSub(auth.getPrincipal().getAttribute("sub"));
 
         playerToMatch.remove(auth.getPrincipal().getAttribute("sub"));
@@ -89,7 +92,7 @@ public class FightController {
 
             matchGameTypes.put(match.getId(), gameType);
 
-            PlayedMatch currentMatch = new PlayedMatch(match, p, opponent.player(), light_or_heavy, opponent.fc());
+            PlayedMatch currentMatch = new PlayedMatch(match, p, opponent.player(), selectedClass, opponent.fc());
             playedMatchRepository.save(currentMatch);
 
             playerToMatch.put(p.getGoogleSub(), match.getId());
@@ -98,12 +101,24 @@ public class FightController {
             messagingTemplate.convertAndSendToUser(p.getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
             messagingTemplate.convertAndSendToUser(opponent.player().getGoogleSub(), "/queue/match-found", new MatchFoundMessage(match.getId()));
         } else {
-
-            queuedPlayers.add(new QueuedPlayer(p, light_or_heavy, gameType));
+            queuedPlayers.add(new QueuedPlayer(p, selectedClass, gameType));
         }
 
         ra.addAttribute("gameType", gameType);
         return "redirect:/fight/waiting";
+    }
+
+    private long calculateRealClassId(int inputId, String gameType) {
+
+        if (gameType.contains("karate")) {
+            return (inputId == 1) ? 3L : 4L;
+        }
+        else if (gameType.contains("boxing")) {
+            return (inputId == 1) ? 5L : 6L;
+        }
+        else {
+            return (inputId == 1) ? 1L : 2L;
+        }
     }
 
     @GetMapping("/check-match")

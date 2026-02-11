@@ -63,13 +63,11 @@ public class PlayerService {
         leaderboardMap.put("bottom-5-wins", repository::findTop5ByOrderByMatchesWonAsc);
         leaderboardMap.put("bottom-10-wins", repository::findTop10ByOrderByMatchesWonAsc);
 
-        // Porazi
         leaderboardMap.put("top-5-losses", repository::findTop5ByOrderByMatchesLostDesc);
         leaderboardMap.put("top-10-losses", repository::findTop10ByOrderByMatchesLostDesc);
         leaderboardMap.put("bottom-5-losses", repository::findTop5ByOrderByMatchesLostAsc);
         leaderboardMap.put("bottom-10-losses", repository::findTop10ByOrderByMatchesLostAsc);
 
-        // Build the key based on form parameters
         String key = top_bottom.toLowerCase() + "-" + number + "-" + criterion.toLowerCase();
 
         return leaderboardMap.getOrDefault(key,
@@ -79,9 +77,17 @@ public class PlayerService {
     public void addInitialProgressions(String sub){
         Player p=this.repository.findByGoogleSub(sub);
         FightingClass light=rep.findByFcId(1L);
-        FightingClass heavy= rep.findByFcId(2L);
+        FightingClass heavy=rep.findByFcId(2L);
+        FightingClass lightKarate=rep.findByFcId(3L);
+        FightingClass heavyKarate=rep.findByFcId(4L);
+        FightingClass lightBoxing=rep.findByFcId(5L);
+        FightingClass heavyBoxing=rep.findByFcId(6L);
         p.getProgressions().add(new PlayerClassProgression(p,light));
         p.getProgressions().add(new PlayerClassProgression(p,heavy));
+        p.getProgressions().add(new PlayerClassProgression(p,lightKarate));
+        p.getProgressions().add(new PlayerClassProgression(p,heavyKarate));
+        p.getProgressions().add(new PlayerClassProgression(p,lightBoxing));
+        p.getProgressions().add(new PlayerClassProgression(p,heavyBoxing));
         this.repository.save(p);
     }
 }

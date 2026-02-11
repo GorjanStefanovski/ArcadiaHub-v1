@@ -16,6 +16,7 @@ function determineWinner({ player, enemy, timerId }) {
     const displayEl = document.querySelector('#displayText');
     const winStatusEl = document.querySelector('#winStatus');
 
+    // Логика за текст
     if (player.health === enemy.health) {
         winStatusEl.innerHTML = 'TIE';
         winStatusEl.style.color = 'white';
@@ -37,20 +38,23 @@ function determineWinner({ player, enemy, timerId }) {
         }
     }
 
+    // Анимации (GSAP)
     setTimeout(() => {
         displayEl.style.display = 'flex';
 
-        gsap.fromTo('#displayText',
-            { opacity: 0, scale: 0.8 },
-            { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }
-        );
+        if(window.gsap) {
+            gsap.fromTo('#displayText',
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" }
+            );
 
-        gsap.from('#backHomeBtn', {
-            y: 30,
-            opacity: 0,
-            delay: 0.4,
-            duration: 0.4
-        });
+            gsap.from('#backHomeBtn', {
+                y: 30,
+                opacity: 0,
+                delay: 0.4,
+                duration: 0.4
+            });
+        }
     }, 1500);
 }
 
@@ -58,16 +62,25 @@ function determineWinner({ player, enemy, timerId }) {
 let timer = 90;
 let timerId;
 
-
 function decreaseTimer() {
     if (timer > 0 && gameStarted) {
         timerId = setTimeout(decreaseTimer, 1000);
         timer--;
-        document.querySelector('#timer').innerHTML = timer;
+        if(document.querySelector('#timer')) {
+            document.querySelector('#timer').innerHTML = timer;
+        }
     }
 
     if (timer === 0 && gameStarted) {
+        gameStarted = false;
         determineWinner({ player, enemy, timerId });
+
+        // Ако истече време, Player 1 мора да каже кој победил на серверот
+        if(playerNumber === 1 && typeof finalizeMatch === 'function') {
+            let winnerId = player.playerId;
+            if(enemy.health > player.health) winnerId = enemy.playerId;
+            finalizeMatch(winnerId);
+        }
     }
 }
 
